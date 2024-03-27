@@ -1,5 +1,5 @@
 import html from './app.html?raw';
-import todoStore from '../todo.store';
+import todoStore, { Filters } from '../todo.store';
 import { renderTodos } from './use-cases/render-todos';
 
 /**
@@ -9,7 +9,8 @@ import { renderTodos } from './use-cases/render-todos';
   const ElementIDs = {
     TodoList: '.todo-list',
     NewTodoInput: '#new-todo-input',
-    destroyerX: '.destroy'
+    completedList: '.clear-completed',
+    todoFilters: '.filtro'
   }
 
 export const App = (elementId) => {
@@ -32,7 +33,8 @@ export const App = (elementId) => {
     //referencias  HTML
     const newDescriptionInput = document.querySelector( ElementIDs.NewTodoInput);
     const todoListUL = document.querySelector(ElementIDs.TodoList);
-
+    const clearCompletedButton = document.querySelector(ElementIDs.completedList);
+    const filtersUL = document.querySelectorAll(ElementIDs.todoFilters);
 
     //Listeners
     newDescriptionInput.addEventListener('keyup', (event) => {
@@ -59,7 +61,33 @@ export const App = (elementId) => {
         displayTodos();
        }
     });
-    
+
+    clearCompletedButton.addEventListener('click',()=>{  
+       todoStore.deleteCompleted();
+       displayTodos();
+    });
+
+    filtersUL.forEach(element => {
+      element.addEventListener('click', (element) => {
+          // Elimina la clase 'selected' de todos los elementos filtersUL
+          filtersUL.forEach(el => el.classList.remove('selected'));
+          // Agrega la clase 'selected' solo al elemento que fue clickeado
+          element.target.classList.add('selected');
+          switch (element.target.textContent){
+            case 'Todos':
+              todoStore.setFilter(Filters.All);
+              break;
+            case 'Pendientes':
+              todoStore.setFilter(Filters.Pending);
+              break;    
+            case 'Completados':
+              todoStore.setFilter(Filters.Completed);
+              break;
+          }
+
+          displayTodos();
+      });
+  });
 
 
 
